@@ -3,7 +3,7 @@ name: deployment
 on:
   push:
     branches:
-      - ft/fetch-single-book
+      - main
 
 jobs:
   deploy:
