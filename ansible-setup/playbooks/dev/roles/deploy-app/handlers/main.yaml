@@ -1,0 +1,8 @@
+- name: Setup venv and install dependencies
+  ansible.builtin.shell: |
+    /home/{{ ansible_user }}/.pyenv/versions/3.11.0/bin/python3 -m venv venv
+    . ./venv/bin/activate
+    pip3 install -r requirements.txt
+  args:
+    chdir: "{{ clone_dir }}"
+    creates: "{{ clone_dir }}/venv"

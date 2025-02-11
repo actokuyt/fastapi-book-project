@@ -1,0 +1,25 @@
+name: deployment
+
+on:
+  push:
+    branches:
+      - ft/fetch-single-book
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install ansible
+
+      - name: Run Ansible Playbook
+        run: |
+          echo "${{ secrets.SSH_GITHUB_PRIV_KEY }}" > ~/.ssh/rsa_github
+          echo "${{ secrets.SSH_AWS_PRIV_KEY }}" > ~/.ssh/rsa_aws
+          chmod 600 ~/.ssh/rsa_kodehauz ~/.ssh/rsa_aws
+          ansible-playbook -i ./ansible-setup/inventories/dev ./ansible-setup/main.yaml -e "ansible_ssh_extra_args='-o StrictHostKeyChecking=no'"

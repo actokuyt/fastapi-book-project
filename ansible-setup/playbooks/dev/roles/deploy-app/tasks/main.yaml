@@ -1,0 +1,78 @@
+- name: Check if supervisor config exists
+  ansible.builtin.stat:
+    path: /etc/supervisor/conf.d/{{ app_name }}.conf
+  register: supervisor_config_stat
+
+- name: Check if the app is running
+  community.general.supervisorctl:
+    name: "{{ app_name }}"
+    state: restarted
+  ignore_errors: true
+  register: app_status
+  become: true
+
+- name: Clone or update the app repository
+  ansible.builtin.git:
+    repo: "{{ repo_url }}"
+    dest: "{{ clone_dir }}"
+    version: main
+    ssh_opts: "-i {{ github_priv_key_path }}"
+    accept_hostkey: true
+    update: true
+  notify:
+    - Setup venv and install dependencies
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Stop the app if it is running
+  community.general.supervisorctl:
+    name: "{{ app_name }}"
+    state: stopped
+  when: supervisor_config_stat.stat.exists and app_status.changed
+  become: true
+
+- name: Ensure app_dir and logs_dir exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"
+  loop:
+    - "{{ app_dir }}"
+    - "{{ logs_dir }}"
+  become: true
+
+- name: Copy app to /var/www
+  ansible.builtin.copy:
+    src: "{{ clone_dir }}/"
+    dest: "{{ app_dir }}"
+    remote_src: true
+    force: true
+    owner: www-data
+    group: www-data
+    mode: "0755"
+  become: true
+
+- name: Configure supervisor config
+  ansible.builtin.template:
+    src: "supervisor.conf.j2"
+    dest: /etc/supervisor/conf.d/{{ app_name }}.conf
+    owner: root
+    group: root
+    mode: "0644"
+  when: not supervisor_config_stat.stat.exists
+  become: true
+
+- name: Ensure the app is read by supervisor
+  community.general.supervisorctl:
+    name: "{{ app_name }}"
+    state: present
+  become: true
+
+- name: Start the app
+  community.general.supervisorctl:
+    name: "{{ app_name }}"
+    state: restarted
+  become: true

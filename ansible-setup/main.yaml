@@ -1,0 +1,2 @@
+- name: Import development playbook
+  import_playbook: ./playbooks/dev/dev.yaml

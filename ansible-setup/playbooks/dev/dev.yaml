@@ -1,0 +1,21 @@
+- name: Set up webservers
+  hosts: backend_dev_servers
+  vars_files:
+    - vars.yaml
+  roles:
+    - setup-webservers
+
+- name: Deploy the app
+  hosts: backend_dev_servers
+  vars_files:
+    - vars.yaml
+  roles:
+    - deploy-app
+
+- name: Set up nginx
+  hosts: backend_dev_servers
+  vars_files:
+    - vars.yaml
+  roles:
+    - nginx-setup
+  become: true

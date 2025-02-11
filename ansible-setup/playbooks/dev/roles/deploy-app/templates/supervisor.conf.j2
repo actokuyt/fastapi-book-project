@@ -1,0 +1,10 @@
+[program:{{app_name}}]
+command={{app_dir}}/venv/bin/uvicorn main:app --port {{app_port}}
+directory={{app_dir}}
+user=root
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+stdout_logfile={{logs_dir}}/supervisor.out.log
+stderr_logfile={{logs_dir}}/supervisor.err.log

@@ -1,0 +1,58 @@
+- name: Install necessary packages
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - curl
+      - git
+      - nginx
+      - supervisor
+      - build-essential
+      - certbot
+      - python3-certbot-nginx
+      - python3-venv
+      - pipx
+      - libssl-dev
+      - zlib1g-dev
+      - libbz2-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - wget
+      - llvm
+      - libncurses5-dev
+      - libncursesw5-dev
+      - xz-utils
+      - tk-dev
+      - libffi-dev
+      - liblzma-dev
+      - libxml2-dev
+      - libxmlsec1-dev
+      - postgresql
+      - acl
+      - python3-psycopg2
+    state: present
+  become: true
+
+- name: Clone the pyenv repository
+  ansible.builtin.git:
+    repo: "https://github.com/pyenv/pyenv.git"
+    dest: "/home/{{ ansible_user }}/.pyenv"
+    version: master
+    update: true
+
+- name: Install Python 3.11 using pyenv
+  ansible.builtin.shell: |
+    pyenv install 3.11.0
+  args:
+    creates: "/home/{{ ansible_user }}/.pyenv/versions/3.11.0"
+  environment:
+    PATH: "/home/{{ ansible_user }}/.pyenv/bin:{{ ansible_env.PATH }}"
+
+- name: Copy essential files to the server
+  ansible.builtin.copy:
+    src: ~/.ssh/rsa_github
+    dest: "/home/{{ ansible_user }}/.ssh/rsa_github"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    remote_src: false
+    force: true
+    mode: "0600"
