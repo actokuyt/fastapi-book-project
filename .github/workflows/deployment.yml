@@ -23,5 +23,5 @@ jobs:
           chmod 755 ~/.ssh
           echo "${{ secrets.SSH_GITHUB_PRIV_KEY }}" > ~/.ssh/rsa_github
           echo "${{ secrets.SSH_AWS_PRIV_KEY }}" > ~/.ssh/rsa_aws
-          chmod 600 ~/.ssh/rsa_kodehauz ~/.ssh/rsa_aws
+          chmod 600 ~/.ssh/rsa_github ~/.ssh/rsa_aws
           ansible-playbook -i ./ansible-setup/inventories/dev ./ansible-setup/main.yaml -e "ansible_ssh_extra_args='-o StrictHostKeyChecking=no'"
