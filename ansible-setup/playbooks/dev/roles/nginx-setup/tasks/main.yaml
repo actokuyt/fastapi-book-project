@@ -1,0 +1,26 @@
+- name: Check if Nginx site config exists
+  ansible.builtin.stat:
+    path: /etc/nginx/sites-available/{{ domain_name }}
+  register: nginx_site_stat
+
+- name: Create Nginx configuration for the app
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/{{ domain_name }}
+    owner: root
+    group: root
+    mode: "0644"
+  when: not nginx_site_stat.stat.exists
+  register: create_config
+
+- name: Enable the new site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/{{ domain_name }}
+    dest: /etc/nginx/sites-enabled/{{ domain_name }}
+    state: link
+  notify: Test Nginx configuration
+
+- name: Reload Nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded

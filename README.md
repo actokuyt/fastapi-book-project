@@ -79,6 +79,10 @@ uvicorn main:app
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
+## Deployment
+
+The app is deployed on an AWS EC2 instance, in the eu-west-1 region. The deployment has been automated using ansible, the app runs on the server at port 8000, and nginx has been used as a reverse proxy, to allow requests on port 80 (http). The deployment pipeline is triggered for every push to the main branch. To reach this deployment, you can follow http://3.252.97.155/docs
+
 ## API Endpoints
 
 ### Books

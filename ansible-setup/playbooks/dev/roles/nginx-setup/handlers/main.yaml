@@ -1,0 +1,3 @@
+- name: Test Nginx configuration
+  ansible.builtin.command: nginx -t
+  changed_when: false
